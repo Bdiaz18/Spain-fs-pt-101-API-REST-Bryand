@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, People, Planet
+from models import db, User, People, Planet, Favorite
 #from models import Person
 
 app = Flask(__name__)
@@ -72,6 +72,21 @@ def get_single_planet(planet_id):
         return jsonify({"message": "Planet not found"}), 404
 
     return jsonify(planet.serialize()), 200
+
+@app.route('/users', methods=['GET'])
+def get_all_users():
+    users = User.query.all()
+    results = list(map(lambda user: user.serialize(), users))
+    return jsonify(results), 200
+
+#-------------------------------------------------------------------id dinámico... no tenemos auth aún.--------------------
+@app.route('/users/<int:user_id>/favorites', methods=['GET'])
+def get_user_favorites(user_id):
+    favorites = Favorite.query.filter_by(user_id=user_id).all()
+    results = list(map(lambda fav: fav.serialize(), favorites))
+    return jsonify(results), 200
+#----------------------------------------------Es tarde, Seguimos mañana, post, get, delete, no está dificil pero estará laaaargo dijo ella...-------------------------------------
+
 
 
 # this only runs if `$ python src/app.py` is executed
