@@ -86,6 +86,52 @@ def get_user_favorites(user_id):
     results = list(map(lambda fav: fav.serialize(), favorites))
     return jsonify(results), 200
 #----------------------------------------------Es tarde, Seguimos mañana, post, get, delete, no está dificil pero estará laaaargo dijo ella...-------------------------------------
+#Posts y Delete...Repetir La repetición de la repetidera...
+@app.route('/favorite/planet/<int:planet_id>', methods=['POST'])
+def add_favorite_planet(planet_id):
+    user_id = request.json.get('user_id')
+
+    if not user_id:
+        return jsonify({"error": "user_id is required to process your request."}), 400
+    
+    favorite = Favorite(user_id=user_id, planet_id=planet_id)
+    db.session.add(favorite)
+    db.session.commit()
+    return jsonify(favorite.serialize()), 201
+
+@app.route('/favorite/people/<int:people_id>', methods=['POST'])
+def add_favorite_people(people_id):
+    user_id = request.json.get('user_id')
+
+    if not user_id:
+        return jsonify({"error": "user_id is requiered to process your request."}), 400
+    
+    favorite = Favorite(user_id=user_id, people_id=people_id)
+    db.session.add(favorite)
+    db.session.commit()
+    return jsonify(favorite.serialize()), 201
+#----------------------------------------------------Delete-----------------------------
+@app.route('/favorite/planet/<int:planet_id>', methods=['DELETE'])
+def delete_favorite_planet(planet_id):
+    user_id = request.json.get('user_id')
+
+    favorite= Favorite.query.filter_by(user_id=user_id, planet_id=planet_id).first()
+    if favorite is None:
+        return jsonify({"error": "Favorite not found."}), 404
+    db.session.delete(favorite)
+    db.session.commit()
+    return jsonify({"message": "Favorite planet removed"}), 200
+
+@app.route('/favorite/people/<int:people_id>', methods=['DELETE'])
+def delete_favorite_people(people_id):
+    user_id = request.json.get('user_id')
+
+    favorite = Favorite.query.filter_by(user_id=user_id, people_id=people_id).first()
+    if favorite is None:
+        return jsonify({"message": "Favorite character not found."}), 404
+    db.session.delete(favorite)
+    db.session.commit()
+    return jsonify({"message": "Favorite character removed."}),200 
 
 
 
@@ -93,3 +139,4 @@ def get_user_favorites(user_id):
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
     app.run(host='0.0.0.0', port=PORT, debug=False)
+ 
